@@ -1,0 +1,23 @@
+name: Validate and publish
+
+on:
+  pull_request:
+    paths: ['v1/**', 'scripts/**']
+  push:
+    branches: [main]
+    paths: ['v1/**']
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/check.mjs --validate
+      - name: Refresh the CDN copy the app downloads
+        if: github.event_name == 'push'
+        run: |
+          curl -fsS https://purge.jsdelivr.net/gh/${{ github.repository }}@main/v1/content.json
+          echo

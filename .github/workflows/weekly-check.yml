@@ -1,0 +1,42 @@
+name: Weekly festival check
+
+on:
+  schedule:
+    - cron: '30 3 * * 1' # Mondays 09:00 IST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Compare dates and propose corrections
+        run: node scripts/check.mjs --propose
+      - name: Open or update the review pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- v1/content.json; then
+            echo "Nothing to propose."
+            exit 0
+          fi
+          n=$(cat .proposal-count)
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B content-check
+          git add v1/content.json
+          git commit -m "Propose $n festival date correction(s)"
+          git push --force origin content-check
+          title="Festival date check: $n difference(s) to review"
+          if gh pr view content-check --json state -q .state 2>/dev/null | grep -q OPEN; then
+            gh pr edit content-check --title "$title" --body-file report.md
+          else
+            gh pr create --base main --head content-check --title "$title" --body-file report.md
+          fi
