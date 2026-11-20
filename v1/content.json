@@ -1,7 +1,20 @@
 {
   "schemaVersion": 1,
   "updated": "2026-11-20",
-  "festivalOverrides": [],
+  "festivalOverrides": [
+    {
+      "id": "holi",
+      "year": 2027,
+      "date": "2027-03-22",
+      "note": "Holidays in India calendar; app calculated 2027-03-23"
+    },
+    {
+      "id": "janmashtami",
+      "year": 2027,
+      "date": "2027-08-25",
+      "note": "Holidays in India calendar; app calculated 2027-08-24"
+    }
+  ],
   "extraFestivals": [],
   "verses": [],
   "banners": [],
